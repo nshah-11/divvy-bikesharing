@@ -4,7 +4,7 @@ library(dplyr)
 # library(readr)
 
 ## merged all csv files
-# file_path <- "C://Users//nehas//Desktop//data"
+# file_path <- "C://Users//rest of file path"
 # df <- list.files(path = file_path, full.names = TRUE, pattern = "\\.csv$") %>%
 #   lapply(read_csv) %>%
 #   bind_rows()
@@ -12,7 +12,7 @@ library(dplyr)
 # write.csv(df, output_file, row.names = FALSE)
 
 ## reading merged dataset for 2023
-tripdata <- read.table(file = "C://Users//nehas//Documents//GT 2023//CSE 6242 DVA//Project//data2023.csv", sep = ",", header = TRUE)
+tripdata <- read.table(file = "C://Users//rest of file path", sep = ",", header = TRUE)
 length(unique(tripdata$ride_id)) #no duplicate rides 
 ## check for missing/null values
 colSums(is.na(tripdata))
