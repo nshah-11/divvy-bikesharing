@@ -4,7 +4,7 @@ library(dplyr)
 # library(readr)
 
 ## merged all csv files
-# file_path <- "C://Users//rest of file path"
+# file_path <- "file path"
 # df <- list.files(path = file_path, full.names = TRUE, pattern = "\\.csv$") %>%
 #   lapply(read_csv) %>%
 #   bind_rows()
@@ -12,7 +12,7 @@ library(dplyr)
 # write.csv(df, output_file, row.names = FALSE)
 
 ## reading merged dataset for 2023
-tripdata <- read.table(file = "C://Users//rest of file path", sep = ",", header = TRUE)
+tripdata <- read.table(file = "file path", sep = ",", header = TRUE)
 length(unique(tripdata$ride_id)) #no duplicate rides 
 ## check for missing/null values
 colSums(is.na(tripdata))
@@ -133,7 +133,8 @@ prop.table(table(trip_filtered_start_station$member_casual))*100
 # lookup table of unique end_lat and end_lng pairings with end_station_name mappings
 lookup_table <- tripdata %>%
   filter(!is.na(end_station_name)) %>%
-  distinct(end_lat, end_lng, end_station_name)
+  distinct(end_lat, end_lng, end_station_name) %>%
+  arrange(end_station_name)
 
 # Use the lookup table to impute missing end_station_name in tripdata
 tripdata1 <- tripdata %>%
@@ -161,6 +162,7 @@ cleaned_data1 <- cleaned_data1 %>%
 # remove all lost/stolen records - remove rows where start/end station names are missing AND rideable_type is classic_bike
 cleaned_data1 <- cleaned_data1 %>%
   filter(!(is.na(end_station_name) & rideable_type == 'classic_bike'))
+colSums(is.na(cleaned_data1))
 
 # # check
 # finalclean <- cleaned_data1 %>%
@@ -184,6 +186,7 @@ cleaned_data1 <- cleaned_data1 %>%
 # # electric_bike 
 # # 100 
 
+
 #impute 'unknown'values under start_station_name and end_station
 cleaned_data1$start_station_name[is.na(cleaned_data1$start_station_name)] <- 'unknown'
 cleaned_data1$end_station_name[is.na(cleaned_data1$end_station_name)] <- 'unknown'
@@ -192,8 +195,143 @@ prop.table(table(cleaned_data1$rideable_type))*100 #approx 50-50 split
 # classic_bike electric_bike 
 # 48.43708      51.56292 
 
+### may also need to clean station names, some have additional characters or (TEST)
+
+##these are stations that are currently active with their respective lat and long as of 2-8-24
+stations <- read.table(file = "file path", sep = ",", header = TRUE)
+length(unique(stations$Latitude)) #898 
+length(unique(stations$Longitude)) #897
+length(unique(stations$Station.Name)) #901
+
+stations <- stations %>%
+  arrange(Station.Name)
+
+stations <- stations[ , -c(1, 3,4,5,6)]
+
+# CLEANING END STATION NAMES 
+# some have extra characters, TEMP or test
+
+df <- data.frame(table(cleaned_data1$end_station_name))
+
+# need to remove 410 - only one observation 
+cleaned_data1 <- cleaned_data1[cleaned_data1$end_station_name != '410', ]
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Bissell St & Armitage Ave*'] <- 'Bissell St & Armitage Ave'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Buckingham - Fountain'] <- 'Buckingham Fountain'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Buckingham Fountain (Columbus/Balbo)'] <- 'Buckingham Fountain'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Buckingham Fountain (Temp)'] <- 'Buckingham Fountain'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'California Ave & Francis Pl (Temp)'] <- 'California Ave & Francis Pl'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Campbell Ave & Montrose Ave (Temp)'] <- 'Campbell Ave & Montrose Ave'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Fort Dearborn Dr & 31st St*'] <- 'Fort Dearborn Dr & 31st St'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Kedzie Ave & 24th St (Temp)'] <- 'Kedzie Ave & 24th St'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Lincoln Ave & Roscoe St*'] <- 'Lincoln Ave & Roscoe St'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Morgan St & Lake St*'] <- 'Morgan St & Lake St'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Noble St & Milwaukee Ave (Temp)'] <- 'Noble St & Milwaukee Ave'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Pulaski Rd & Eddy St (Temp)'] <- 'Pulaski Rd & Eddy St'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Racine Ave & Fullerton Ave (Temp)'] <- 'Racine Ave & Fullerton Ave'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Wentworth Ave & 24th St (Temp)'] <- 'Wentworth Ave & 24th St'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Wentworth Ave & Cermak Rd*'] <- 'Wentworth Ave & Cermak Rd'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Wilton Ave & Diversey Pkwy*'] <- 'Wilton Ave & Diversey Pkwy'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Woodlawn & 103rd - Olive Harvey Vaccination Site'] <- 'Woodlawn & 103rd'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Lincoln Ave & Belmont Ave (Temp)'] <- 'Lincoln Ave & Belmont Ave'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Rainbow Beach'] <- 'Rainbow - Beach'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Bissell St & Armitage Ave'] <- 'Bissell St & Armitage Ave*'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Damen Ave & Coulter St'] <- 'Damen Ave/Coulter St'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Kenosha & Wellington'] <- 'Kenosha Ave & Wellington Ave'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Kilbourn & Roscoe'] <- 'Kilbourn Ave & Roscoe St'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Lavergne & Fullerton'] <- 'Lavergne Ave & Fullerton Ave'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Lincoln Ave & Roscoe St'] <- 'Lincoln Ave & Roscoe St*'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Morgan St & Lake St'] <- 'Morgan St & Lake St*'
+cleaned_data1$end_station_name[cleaned_data1$end_station_name == 'Elizabeth St & 59th St'] <- 'Racine Ave & 57th St'
+cleaned_data1 <- cleaned_data1[cleaned_data1$end_station_name != 'MTV WH - Cassette Repair', ]
+cleaned_data1 <- cleaned_data1[cleaned_data1$end_station_name != 'NewHastings', ]
+cleaned_data1 <- cleaned_data1[cleaned_data1$end_station_name != 'OH - BONFIRE - TESTING', ]
+cleaned_data1 <- cleaned_data1[cleaned_data1$end_station_name != 'OH Charging Stx - Test', ]
+cleaned_data1 <- cleaned_data1[cleaned_data1$end_station_name != 'Old Hastings Monolith', ]
+cleaned_data1 <- cleaned_data1[cleaned_data1$end_station_name != 'Base - 2132 W Hubbard', ]
+
+# THESE 2 STATION NAMES DO NOT SHOW UP UNDER ACTIVE STATIONS (901)
+# Clark St & Randolph St
+# Lincoln Ave & Belmont Ave
+# plus a bunch with public rack 
+
+cleaned_data1$end_lat[cleaned_data1$end_station_name == "Clark St & Randolph St"] <- 41.88457623
+cleaned_data1$end_lng[cleaned_data1$end_station_name == "Clark St & Randolph St"] <- -87.63188991
+
+cleaned_data1$end_lat[cleaned_data1$end_station_name == "Lincoln Ave & Belmont Ave"] <- 41.9395316198226
+cleaned_data1$end_lng[cleaned_data1$end_station_name == "Lincoln Ave & Belmont Ave"] <- -87.67111436
 
 
+cleaned_data1 <- cleaned_data1 %>%
+  left_join(stations, by = c("end_station_name" = "Station.Name")) %>%
+  mutate(
+    end_lat = if_else(!is.na(Latitude), Latitude, end_lat),
+    end_lng = if_else(!is.na(Longitude), Longitude, end_lng)
+  ) %>%
+  select(-Latitude, -Longitude, -Location)
+length(unique(cleaned_data1$end_lat)) #4213
+length(unique(cleaned_data1$end_lng)) #4217
+colSums(is.na(cleaned_data1))
+
+freq_table <- cleaned_data1 %>%
+  filter(!is.na(end_station_name)) %>%
+  count(end_station_name, end_lat, end_lng, sort = TRUE) %>%
+  arrange(end_station_name)
+
+
+
+# CLEANING START STATION NAMES 
+# some have extra characters, TEMP or test
+
+df <- data.frame(table(cleaned_data1$start_station_name))
+
+cleaned_data1 <- cleaned_data1[cleaned_data1$start_station_name != '410', ]
+cleaned_data1 <- cleaned_data1[cleaned_data1$start_station_name != 'Base - 2132 W Hubbard', ]
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Buckingham - Fountain'] <- 'Buckingham Fountain'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Buckingham Fountain (Columbus/Balbo)'] <- 'Buckingham Fountain'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Buckingham Fountain (Temp)'] <- 'Buckingham Fountain'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'California Ave & Francis Pl (Temp)'] <- 'California Ave & Francis Pl'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Campbell Ave & Montrose Ave (Temp)'] <- 'Campbell Ave & Montrose Ave'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Damen Ave & Coulter St'] <- 'Damen Ave/Coulter St'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Kedzie Ave & 24th St (Temp)'] <- 'Kedzie Ave & 24th St'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Kenosha & Wellington'] <- 'Kenosha Ave & Wellington Ave'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Kilbourn & Roscoe'] <- 'Kilbourn Ave & Roscoe St'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Lavergne & Fullerton'] <- 'Lavergne Ave & Fullerton Ave'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Lincoln Ave & Belmont Ave (Temp)'] <- 'Lincoln Ave & Belmont Ave'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Noble St & Milwaukee Ave (Temp)'] <- 'Noble St & Milwaukee Ave'
+cleaned_data1 <- cleaned_data1[cleaned_data1$start_station_name != 'OH Charging Stx - Test', ]
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Pulaski Rd & Eddy St (Temp)'] <- 'Pulaski Rd & Eddy St'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Racine Ave & Fullerton Ave (Temp)'] <- 'Racine Ave & Fullerton Ave'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Rainbow Beach'] <- 'Rainbow - Beach'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Wentworth Ave & 24th St (Temp)'] <- 'Wentworth Ave & 24th St'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Woodlawn & 103rd - Olive Harvey Vaccination Site'] <- 'Woodlawn & 103rd'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Lincoln Ave & Belmont Ave'] <- 'Racine Ave & 57th St'
+cleaned_data1$start_station_name[cleaned_data1$start_station_name == 'Elizabeth St & 59th St'] <- 'Racine Ave & 57th St'
+
+
+cleaned_data1$start_lat[cleaned_data1$start_station_name == "Clark St & Randolph St"] <- 41.88457623
+cleaned_data1$start_lng[cleaned_data1$start_station_name == "Clark St & Randolph St"] <- -87.63188991
+
+cleaned_data1$start_lat[cleaned_data1$start_station_name == "Lincoln Ave & Belmont Ave"] <- 41.9395316198226
+cleaned_data1$start_lng[cleaned_data1$start_station_name == "Lincoln Ave & Belmont Ave"] <- -87.67111436
+
+cleaned_data1 <- cleaned_data1 %>%
+  left_join(stations, by = c("start_station_name" = "Station.Name")) %>%
+  mutate(
+    start_lat = if_else(!is.na(Latitude), Latitude, start_lat),
+    start_lng = if_else(!is.na(Longitude), Longitude, start_lng)
+  ) %>%
+  select(-Latitude, -Longitude, -Location)
+length(unique(cleaned_data1$start_lat)) #16033
+length(unique(cleaned_data1$start_lng)) #16111
+colSums(is.na(cleaned_data1))
+
+freq_table_start <- cleaned_data1 %>%
+  filter(!is.na(start_station_name)) %>%
+  count(start_station_name, start_lat, start_lng, sort = TRUE) %>%
+  arrange(start_station_name)
+
+
+#### DATASET IS CLEANED
 
 ### 2 OPTIONS: 
 
@@ -202,9 +340,9 @@ prop.table(table(cleaned_data1$rideable_type))*100 #approx 50-50 split
 
 ### 2. use cleaned_dataset1 where all rows with missing lat and long are removed,
 ### and missing values for start_station_name and end_station_name are imputed with unknown to prevent bias
+### and station names are cleaned and aligned with active stations 
 
 ### PICK FINAL CLEANED DATASET  
 ### depends on what we want to answer and as long as we are able to justify why it was cleaned that way
 
 
-### may also need to clean station names, some have additional characters or (TEST)
