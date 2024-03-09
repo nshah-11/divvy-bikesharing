@@ -1,0 +1,60 @@
+import pandas as pd
+import numpy as np
+from datetime import datetime
+
+#read in data cleaned by Amber
+df = pd.read_csv('C:\\Users\\Helen\\Documents\\CSE 6242\\clean_data_v2.csv')
+
+
+# CREATE COLUMN FOR "season"
+
+# Assumptions:
+# Dec, Jan, Feb = winter
+# Mar, Apr, May = spring
+# Jun, Jul, Aug = summer
+# Sep, Oct, Nov = fall
+
+def season(month):
+    winter = ("December", "January", "February")
+    spring = ("March", "April", "May")
+    summer = ("June", "July", "August")
+    fall = ("September", "October", "November")
+    if month in winter:
+        return("Winter")
+    if month in spring:
+        return("Spring")
+    if month in summer:
+        return("Summer")
+    if month in fall:
+        return("Fall")
+    else:
+        return("No Season")
+
+df['season'] = df['month'].apply(season)
+
+# CREATE COLUMN FOR "start time of day" AND "end time of day"
+
+def extract_time_of_day(timestamp):
+    date = timestamp.split()[1]
+    # Parse the input date string
+    date_obj = datetime.strptime(date, "%H:%M")
+    # Format the date object into "Hour-Min-Sec-AM/PM" format
+    formatted_date = date_obj.strftime("%I:%M:%S %p")
+    return formatted_date
+
+df['time_of_start'] = df['started_at'].apply(extract_time_of_day)
+df['time_of_end'] = df['ended_at'].apply(extract_time_of_day)
+
+
+# CREATE COLUMN FOR "trip duration (mins)"
+
+def duration(start_time, end_time):
+    end = pd.to_datetime(end_time)
+    start = pd.to_datetime(start_time)
+    num_mins = pd.Timedelta(end - start).seconds / 60.0
+    return num_mins
+
+df['trip_duration_mins'] = df.apply(lambda x: duration(x.started_at, x.ended_at), axis=1)
+
+#write df to csv file
+df.to_csv('clean_data_v3.csv')
