@@ -95,6 +95,6 @@ pytz==2024.1
 PyYAML==6.0.1
 pyzmq==25.1.2
 scikit-learn==1.3.2
-scipy==1.13.0
+scipy==1.11.1
 seaborn==0.13.2
 xgboost==2.0.3
