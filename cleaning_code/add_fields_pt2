@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime
 
 #read in data cleaned by Amber
-df = pd.read_csv('C:\\Users\\Helen\\Documents\\CSE 6242\\clean_data_v2.csv')
+df = pd.read_csv('C:\\Users\\...\\clean_data_v2.csv')
 
 
 # CREATE COLUMN FOR "season"
