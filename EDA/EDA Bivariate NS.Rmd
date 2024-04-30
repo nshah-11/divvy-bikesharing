@@ -18,7 +18,7 @@ suppressWarnings(suppressMessages(library(cowplot)))
 suppressWarnings(suppressMessages(library(lubridate)))
 suppressWarnings(suppressMessages(library(ggcorrplot)))
 
-data <- read.table(file = "C://Users//nehas//Documents//GT 2023//CSE 6242 DVA//Project//clean_data.csv", sep = ",", header = TRUE)
+data <- read.table(file = "C://Users//...//clean_data.csv", sep = ",", header = TRUE)
 data <- data[, -c(2,3)]
 data$month <- factor(data$month, levels = c("January", "February", "March", "April", "May", "June", 
                                                       "July", "August", "September", "October", "November", "December"))
