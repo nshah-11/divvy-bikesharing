@@ -41,7 +41,7 @@ Either file version below can be used to produce the same clean dataset.
 
 After cleaning the dataset, to add additional variables: 
 1. Run extract_dates.py
-2. Then run add_fields_pt in python
+2. Then run add_fields_pt2 in python
 
 This will produce the final cleaned dataset! 
 
