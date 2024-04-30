@@ -36,3 +36,17 @@ Approximately 50% of riders use electric bikes and 50% use classic bikes. Approx
 ## Bivariate Analysis
 
 Bivariate Analysis was done using both Tableau and R. 
+
+![image](https://github.com/nshah-11/divvy-bikesharing/assets/97864887/524fde39-7aa1-44b0-ac0d-8faad49a478d)
+
+It appears there is an approximately even split between classic and electric bikes, where a majority of bike riders are members vs casual.Specifically approximately 2/3 of riders are members and 1/3 of the population are casual riders.
+
+![image](https://github.com/nshah-11/divvy-bikesharing/assets/97864887/786bbeaa-0a4d-4d68-91c1-ed36634925b3)
+![image](https://github.com/nshah-11/divvy-bikesharing/assets/97864887/848987c2-e767-4ab3-888b-a6138756a9ea)
+
+1.Looks like thre are more casual riders on the weekends compared to weekdays. 2. There are more casual riders during the summer in contrast to members during their respective seasons. 3. Overall, January, February, March and December have less than 200,000 riders compared to other months. Specifically there is at least 1/2 of casual riders during April through October, compared to members.
+
+![image](https://github.com/nshah-11/divvy-bikesharing/assets/97864887/dbdf8349-8ba8-425a-8f77-6f1ab0a02893)
+![image](https://github.com/nshah-11/divvy-bikesharing/assets/97864887/2b0b5284-4bf7-4486-b02c-c48fcecd8d30)
+
+As mentioned previously, there are outliers for duration.It looks like after 37 minutes there are more casual riders than members.This could be because members may be using bikesharing for commuting vs casual riders who may have more time to explore and ride the bike.
