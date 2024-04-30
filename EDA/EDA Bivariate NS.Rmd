@@ -1,0 +1,227 @@
+---
+title: "Bikesharing EDA Bivariate Analysis"
+author: "Neha S."
+date: "2024-03-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Cleaned Dataset & Description 
+
+```{r, echo=FALSE}
+suppressWarnings(suppressMessages(library(ggplot2)))
+suppressWarnings(suppressMessages(library(dplyr)))  
+suppressWarnings(suppressMessages(library(cowplot)))
+suppressWarnings(suppressMessages(library(lubridate)))
+suppressWarnings(suppressMessages(library(ggcorrplot)))
+
+data <- read.table(file = "C://Users//nehas//Documents//GT 2023//CSE 6242 DVA//Project//clean_data.csv", sep = ",", header = TRUE)
+data <- data[, -c(2,3)]
+data$month <- factor(data$month, levels = c("January", "February", "March", "April", "May", "June", 
+                                                      "July", "August", "September", "October", "November", "December"))
+data$day_of_week <- factor(data$day_of_week, levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
+                                            "Saturday"))
+data$season <- factor(data$season, levels = c("Spring", "Summer", "Fall", "Winter"))
+data$date <- as.Date(data$date, format="%m/%d/%Y")
+data$member_casual <- as.factor(data$member_casual)
+data$rideable_type <- as.factor(data$rideable_type)
+
+# Convert time_of_start to a POSIXct object, assuming the date is not important
+data$time_of_start1 <- as.POSIXct(data$time_of_start, format="%I:%M:%S %p")
+
+data <- data %>%
+  mutate(time_of_day = case_when(
+    time_of_start1 >= as.POSIXct("08:00:00 PM", format="%I:%M:%S %p") | 
+      time_of_start1 < as.POSIXct("04:00:00 AM", format="%I:%M:%S %p") ~ "LATE",
+    time_of_start1 >= as.POSIXct("04:00:00 AM", format="%I:%M:%S %p") &
+      time_of_start1 < as.POSIXct("10:00:00 AM", format="%I:%M:%S %p") ~ "AM",
+    time_of_start1 >= as.POSIXct("10:00:00 AM", format="%I:%M:%S %p") &
+      time_of_start1 < as.POSIXct("03:00:00 PM", format="%I:%M:%S %p") ~ "MID",
+    time_of_start1 >= as.POSIXct("03:00:00 PM", format="%I:%M:%S %p") &
+      time_of_start1 < as.POSIXct("08:00:00 PM", format="%I:%M:%S %p") ~ "PM",
+    TRUE ~ "Other"  # Fallback category if needed
+  ))
+
+data <- data[, -c(18)]
+
+data$time_of_day <- as.factor(data$time_of_day)
+head(data)
+```
+
+1. **rideable_type**: type of bike, electric vs classic 
+2. **start_station_name**: station name from where the trip started  
+3. **end_station_name**: station name at which the trip ended 
+4. **start_lat**: latitude of trip start  
+5. **start_lng**: longitude of trip start  
+6. **end_lat**: latitude of trip end 
+7. **end_lng**: longitude of trip end 
+8. **member_casual**: type of customer riding bikes, member vs casual riders 
+9. **date**: date of trip 
+10. **day_of_week**: day of week trip was taken
+11. **month**: month trip was taken
+12. **season**: season trip was taken
+13. **time_of_start**: start time of bike trip
+14. **time_of_end**: end time of bike trip
+15. **trip_duration_min**: how long the bike trip took in minutes
+16. **time_of_day**: “AM” - 4:00AM-9:59AM, “MID” - 10:00AM-2:59PM, “PM” - 3:00PM-7:59PM, “LATE” - 8:00PM-3:59AM  
+
+
+## MEMBER TYPE 
+
+### Bike type by Member Type
+
+```{r, echo=FALSE, fig.width = 5, fig.height = 5}
+counts <- data %>%
+  group_by(rideable_type, member_casual) %>%
+  summarise(n = n(), .groups = 'drop')
+
+# Calculate percentages
+perc <- counts %>%
+  group_by(rideable_type) %>%
+  mutate(percentage = n / sum(n) * 100) %>%
+  ungroup()
+
+# Plot
+ggplot(perc, aes(x = rideable_type, y = n, fill = member_casual)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  geom_text(aes(label = paste0(round(n), "\n(", round(percentage, 1), "%)"), 
+                y = n), position = position_dodge(width = 0.9), vjust = 0.5, size = 2.5, fontface = "bold") +
+  scale_fill_brewer(palette = "Paired") +
+  labs(title = "Bike type by Member Type",
+       x = "Bike Type",
+       y = "Count") +
+  theme_minimal() 
+```
+
+Observations: It appears there is an approximately even split between classic and electric bikes, where a majority of bike riders are members vs casual.Specifically approximately 2/3 of riders are members and 1/3 of the population are casual riders. 
+
+### Time Related Variables by Bike Type 
+
+```{r, echo=FALSE, fig.width = 13, fig.height = 11}
+
+# DAY OF WEEK 
+counts <- data %>%
+  group_by(day_of_week, member_casual) %>%
+  summarise(n = n(), .groups = 'drop')
+# Calculate percentages
+perc <- counts %>%
+  group_by(day_of_week) %>%
+  mutate(percentage = n / sum(n) * 100) %>%
+  ungroup()
+# Plot
+p1 <- ggplot(perc, aes(x = day_of_week, y = n, fill = member_casual)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  geom_text(aes(label = paste0(round(n), "\n(", round(percentage, 1), "%)"), 
+                y = n), position = position_dodge(width = 0.9), vjust = 0.5, size = 2.5,  fontface = "bold") +
+  scale_fill_brewer(palette = "Paired") +
+  labs(title = "Day of Week by Member Type",
+       x = "Day of Week",
+       y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+## SEASON 
+counts <- data %>%
+  group_by(season, member_casual) %>%
+  summarise(n = n(), .groups = 'drop')
+# Calculate percentages
+perc <- counts %>%
+  group_by(season) %>%
+  mutate(percentage = n / sum(n) * 100) %>%
+  ungroup()
+p2 <- ggplot(perc, aes(x = season, y = n, fill = member_casual)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  geom_text(aes(label = paste0(round(n), "\n(", round(percentage, 1), "%)"), 
+                y = n), position = position_dodge(width = 0.9), vjust = 0.5, size = 2.5, fontface = "bold") +
+  scale_fill_brewer(palette = "Paired") +
+  labs(title = "Season by Member Type",
+       x = "Season",
+       y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+## MONTH 
+counts <- data %>%
+  group_by(month, member_casual) %>%
+  summarise(n = n(), .groups = 'drop')
+# Calculate percentages
+perc <- counts %>%
+  group_by(month) %>%
+  mutate(percentage = n / sum(n) * 100) %>%
+  ungroup()
+p3 <- ggplot(perc, aes(x = month, y = n, fill = member_casual)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  geom_text(aes(label = paste0(round(n), "\n(", round(percentage, 1), "%)"), 
+                y = n), position = position_dodge(width = 0.9), vjust = 0.5, size = 2.5, fontface = "bold") +
+  scale_fill_brewer(palette = "Paired") +
+  labs(title = "Month by Member Type",
+       x = "Month",
+       y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+top_row <- plot_grid(p1, p2, labels = c('A', 'B'), label_size = 12)
+plot_grid(top_row, p3, labels = c('', 'C'), label_size = 12, ncol = 1)
+
+```
+
+```{r, echo=FALSE, fig.width = 6, fig.height = 6}
+
+## TIME OF DAY 
+counts <- data %>%
+  group_by(time_of_day, member_casual) %>%
+  summarise(n = n(), .groups = 'drop')
+# Calculate percentages
+perc <- counts %>%
+  group_by(time_of_day) %>%
+  mutate(percentage = n / sum(n) * 100) %>%
+  ungroup()
+ggplot(perc, aes(x = time_of_day, y = n, fill = member_casual)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.9)) +
+  geom_text(aes(label = paste0(round(n), "\n(", round(percentage, 1), "%)"), 
+                y = n), position = position_dodge(width = 0.9), vjust = 0.5, size = 2.5, fontface = "bold") +
+  scale_fill_brewer(palette = "Paired") +
+  labs(title = "Month by Member Type",
+       x = "Month",
+       y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+Observations: 1.Looks like thre are more casual riders on the weekends compared to weekdays. 2. There are more casual riders during the summer in contrast to members during their respective seasons. 3. Overall, January, February, March and December have less than 200,000 riders compared to other months. Specifically there is at least 1/2 of casual riders during April through October, compared to members.  
+
+```{r, echo=FALSE, fig.width = 13, fig.height = 6}
+counts <- data %>%
+  group_by(date, member_casual) %>%
+  summarise(count = n(), .groups = 'drop')
+# Now create the line chart
+ggplot(counts, aes(x = date, y = count, group = member_casual, color = member_casual)) +
+  geom_line(linewidth = 1.0) +
+  scale_color_brewer(palette = "Set1") + # This makes the chart colorful
+  labs(title = "Date by Member Type",
+       x = "Date",
+       y = "Count") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
+
+### Trip Duration by Bike Type
+
+```{r, echo=FALSE, fig.width = 13, fig.height = 6}
+ggplot(data, aes(x = trip_duration_mins, fill = member_casual)) + 
+  geom_bar(position = "dodge") +
+  scale_fill_brewer(palette = "Paired") + # This makes the chart colorful
+  labs(title = "Trip Duration by Member Type",
+       x = "Trip Duration (mins",
+       y = "Count") +
+  theme_minimal()
+```
+
+Observations: Looks like there are outliers for duration.It looks like after 37 minutes there are more casual riders than members.This could be because members may be using bikesharing for commuting vs casual riders who may have more time to explore and ride the bike.
+
