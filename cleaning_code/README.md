@@ -27,6 +27,8 @@ Based on existing attributes, addtional variables were created:
 | End Time                   | The time the bike ride ended - time   | 
 | Trip Duration (mins)   | The total time of the bike ride - integer    | 
 
+Any Trips less than 1 minute (malfunction) or greater than 3 hours(a classic rider can ride for upto 3hrs) were removed. 
+
 ### Cleaned Dataset Sample
 Here is a sample of the cleaned dataset: 
 ![image](https://github.com/nshah-11/divvy-bikesharing/assets/97864887/768d5a34-760b-4bd8-9d22-0160ed2eb930)
