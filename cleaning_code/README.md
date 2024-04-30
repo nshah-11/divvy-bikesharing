@@ -21,7 +21,7 @@ Based on existing attributes, addtional variables were created:
 | -------------------------------- | ------------------------------------------------------------------------ |
 | Date                | Date bike ride was taken - date           | 
 | Day of Week              |7 days of the week (Sunday, Monday, Tuesday etc.) - string     |
-| Month            | Month of the year (January, Feburary etc.) - string      | 
+| Month            | Month of the year (January, February etc.) - string      | 
 | Season                   | Season of the year (Spring, Summer, Fall, Winter) - string   | 
 | Start Time                   | The time the bike ride started - time   | 
 | End Time                   | The time the bike ride ended - time   | 
