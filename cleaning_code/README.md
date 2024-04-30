@@ -33,4 +33,17 @@ Here is a sample of the cleaned dataset:
 
 After cleaning the dataset, there are approximately 5.2 million observations for 2023.
 
+## Navigating This Section 
+
+Either file version below can be used to produce the same clean dataset.
+- cleaning_data(with EDA): this is a messy version of cleaning the data which includes some preliminary EDA & notes 
+- cleaning_data(clean): this is a clean version of cleaning the data
+
+After cleaning the dataset, to add additional variables: 
+1. Run extract_dates.py
+2. Then run add_fields_pt in python
+
+This will produce the final cleaned dataset! 
+
+
 
