@@ -50,3 +50,10 @@ It appears there is an approximately even split between classic and electric bik
 ![image](https://github.com/nshah-11/divvy-bikesharing/assets/97864887/2b0b5284-4bf7-4486-b02c-c48fcecd8d30)
 
 As mentioned previously, there are outliers for duration.It looks like after 37 minutes there are more casual riders than members.This could be because members may be using bikesharing for commuting vs casual riders who may have more time to explore and ride the bike.
+
+## Correlation Matrix 
+![image](https://github.com/nshah-11/divvy-bikesharing/assets/97864887/80f825de-a23b-4b73-983a-84a0dee978eb)
+
+Little to no correlation between variables so all variables were used to train model. 
+
+*The code for this can be found under model_training folder in RF_SVM_ARIMA_NS.R file.  
